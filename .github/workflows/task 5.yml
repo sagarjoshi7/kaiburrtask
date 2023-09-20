@@ -40,7 +40,4 @@ jobs:
 
     - name: Deploy to Production
       run: |
-        # Add your deployment steps here
-              - name: Setup Java JDK
-                uses: actions/setup-java@v3.13.0
-            
+      
