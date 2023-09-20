@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Server Management</title>
+</head>
+<body>
+    <h1>Server Management</h1>
+
+    <h2>Create a Server</h2>
+    <form id="createServerForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="language">Language:</label>
+        <input type="text" id="language" name="language" required><br><br>
+
+        <label for="framework">Framework:</label>
+        <input type="text" id="framework" name="framework" required><br><br>
+
+        <button type="submit">Create Server</button>
+    </form>
+
+    <hr>
+
+    <h2>Search Servers by Name</h2>
+    <form id="searchByNameForm">
+        <label for="searchName">Search Name:</label>
+        <input type="text" id="searchName" name="searchName" required><br><br>
+
+        <button type="submit">Search</button>
+    </form>
+
+    <hr>
+
+    <h2>Servers List</h2>
+    <ul id="serverList"></ul>
+
+    <script>
+        document.getElementById("createServerForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const serverData = {
+                name: formData.get("name"),
+                language: formData.get("language"),
+                framework: formData.get("framework"),
+            };
+
+            fetch("/servers", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(serverData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Server created:", data);
+                event.target.reset();
+            })
+            .catch(error => console.error("Error creating server:", error));
+        });
+
+        document.getElementById("searchByNameForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const searchName = document.getElementById("searchName").value;
+
+            fetch(`/servers/findByName?name=${searchName}`)
+            .then(response => response.json())
+            .then(data => {
+                const serverList = document.getElementById("serverList");
+                serverList.innerHTML = "";
+
+                if (data.length === 0) {
+                    serverList.innerHTML = "<p>No servers found.</p>";
+                } else {
+                    data.forEach(server => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = `Name: ${server.name}, Language: ${server.language}, Framework: ${server.framework}`;
+                        serverList.appendChild(listItem);
+                    });
+                }
+            })
+            .catch(error => console.error("Error searching servers:", error));
+        });
+    </script>
+</body>
+</html>
